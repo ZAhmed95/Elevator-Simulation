@@ -1,4 +1,9 @@
-
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 public class ElevatorBoardEvent extends Event {
 
 	Person p; //the person boarding the elevator

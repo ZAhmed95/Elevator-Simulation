@@ -1,4 +1,9 @@
-
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 public class ElevatorMoveEvent extends Event {
 
 	Elevator e; //which elevator is performing this event

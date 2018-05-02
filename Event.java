@@ -1,3 +1,9 @@
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 //Event is an abstract class, its subclasses will be instantiated for the simulation
 public abstract class Event implements Comparable<Event>{
 	String message; //description of this event

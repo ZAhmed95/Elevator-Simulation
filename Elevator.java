@@ -1,3 +1,9 @@
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 import java.util.LinkedList;
 
 public class Elevator {

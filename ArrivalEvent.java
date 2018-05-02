@@ -1,3 +1,9 @@
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 //Event of a new person arriving
 public class ArrivalEvent extends Event{
 	Person person; //which person is arriving with this event
@@ -12,6 +18,7 @@ public class ArrivalEvent extends Event{
 	@Override
 	public void execute(){
 		//this person will arrive at the designated floor
+		person.arrivalTime = triggerTime;
 		EventDriver.ed.floors[floor].addPerson(person);
 	}
 }

@@ -1,3 +1,9 @@
+/*
+ * CS381 Modeling and Simulation
+ * Elevator Simulation Final Project
+ * Authors: Zaheen Ahmed 
+ * 			Jun Young Cheong
+ */
 import java.util.ListIterator;
 
 public class EventDriver {
@@ -52,6 +58,9 @@ public class EventDriver {
 			//make elevator decisions
 			controlElevators();
 		}
+		
+		//log average wait time
+		System.out.println("Average person's wait time: " + stat.averageWaitTime());
 	}
 	
 	void nextPerson(){
@@ -73,7 +82,7 @@ public class EventDriver {
 	int chooseFloor(){
 		//new arrivals have 50% chance of arriving at lobby (floor 0),
 		//and uniform chance to arrive at any other floor
-		if (stat.randInt(0, 1) == 0){
+		if (stat.randInt(0, 2) == 0){
 			return 0; //50% chance of floor 0
 		}
 		//50% chance of a uniform choice between floor 1 to floor (numFloors-1)
@@ -157,9 +166,10 @@ public class EventDriver {
 			if (e.direction == 1)
 				floors[e.currentFloor].up = false;
 			else if (e.direction == -1)
-				floors[e.currentFloor].up = false;
+				floors[e.currentFloor].down = false;
 			//now create an elevator move event to get it moving
 			//events.sortedAdd(new ElevatorMoveEvent(time+wait, elevatorBoardTime, e));
+			//TODO: above statement causes a bug, figure out why
 			return;
 		}
 		//if the elevator is going up and it has more stops above, keep going
