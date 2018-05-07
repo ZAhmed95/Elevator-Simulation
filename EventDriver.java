@@ -4,6 +4,8 @@
  * Authors: Zaheen Ahmed 
  * 			Jun Young Cheong
  */
+//TODO: in each floor, split the queue into an upQueue and a downQueue
+import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class EventDriver {
@@ -14,9 +16,9 @@ public class EventDriver {
 	Elevator[] elevators; //array of all elevators in building
 	int numElevators; //total number of elevators
 	double time; //current simulation time, in seconds
-	//LinkedList<Person> arrivals; //future arriving people (? might remove this)
 	SortedLinkedList<Event> events;
 	Statistics stat;
+	int peopleWaiting; //how many people are waiting for service
 	
 	//Constants used in the simulation
 	final double elevatorBoardTime = 0.1;
@@ -40,6 +42,7 @@ public class EventDriver {
 		time = 0;
 		events = new SortedLinkedList<Event>();
 		stat = new Statistics();
+		peopleWaiting = 0;
 	}
 	
 	//simulate up to <maxArrivals> number of arriving customers
@@ -97,8 +100,8 @@ public class EventDriver {
 		//get next event in queue
 		Event next = events.removeFirst();
 		//calculate event start time and end time
-		double startTime = next.triggerTime;
-		double endTime = startTime + next.duration;
+		double startTime = Math.round(next.triggerTime*100)/100.0;
+		double endTime = Math.round((startTime + next.duration)*100)/100.0;
 		//log event message
 		System.out.println(
 				"(time = " + startTime + ") " //event start time
@@ -125,7 +128,7 @@ public class EventDriver {
 	void controlElevators(){
 		//in the finished project, the controller will smartly choose
 		//how to move the elevators efficiently
-		
+		LinkedList<Person> queue; //reference to a floor's waiting line
 		//TODO: put a for loop going through each elevator in finished project
 		//for now, there's just one elevator
 		Elevator e = elevators[0];
@@ -149,17 +152,14 @@ public class EventDriver {
 			if (e.direction == 0)
 				e.direction = 1;
 			//all exit events have been scheduled, now see who wants to board
-			itr = floors[e.currentFloor].queue.listIterator();
+			//get all the people waiting to go in this direction
+			queue = (e.direction > 0) ? floors[e.currentFloor].upQueue : floors[e.currentFloor].downQueue;
+			itr = queue.listIterator();
 			wait = 0;
 			while(itr.hasNext()){
 				p = itr.next();
-				//if the direction the elevator is heading matches the direction
-				//this person wants to go:
-				if ((p.desiredFloor - e.currentFloor)*e.direction > 0){
-					//create a boarding event
-					events.add(new ElevatorBoardEvent(time+wait, elevatorBoardTime, p, e));
-					wait += elevatorBoardTime; //people must enter one by one
-				}
+				events.add(new ElevatorBoardEvent(time+wait, elevatorBoardTime, p, e, e.direction));
+				wait += elevatorBoardTime; //people must enter one by one
 			}
 			//elevator boarding and exiting events scheduled, now change some flags:
 			e.stopFloors[e.currentFloor] = false; //elevator finished it's business at this floor
@@ -257,6 +257,6 @@ public class EventDriver {
 		//create EventDriver with 10 floors and 1 elevator
 		EventDriver ed = new EventDriver(10, 1);
 		//start simulation, go up to 1e3 arrivals
-		ed.start(10);
+		ed.start(100);
 	}
 }
