@@ -8,7 +8,8 @@ public class ElevatorBoardEvent extends Event {
 
 	Person p; //the person boarding the elevator
 	Elevator e; //the elevator being boarded
-	public ElevatorBoardEvent(double triggerTime, double duration, Person p, Elevator e) {
+	int direction; //direction this person is going
+	public ElevatorBoardEvent(double triggerTime, double duration, Person p, Elevator e, int d) {
 		super("Person " + p.id + " enters elevator " + e.id 
 				+ ", wants to go to floor " + p.desiredFloor, 
 				triggerTime, 
@@ -16,13 +17,22 @@ public class ElevatorBoardEvent extends Event {
 			);
 		this.p = p;
 		this.e = e;
+		this.direction = d;
 	}
 
 	@Override
 	public void execute() {
 		Floor f = EventDriver.ed.floors[e.currentFloor];
-		//this person is first one in line at floor f
-		f.queue.removeFirst(); //leave floor f
+		//if direction is up:
+		if (direction > 0){
+			//remove person from upQueue
+			f.upQueue.removeFirst();
+		}
+		else{
+			//remove from downQueue
+			f.downQueue.removeFirst();
+		}
+		
 		e.board(p); //enter elevator e
 	}
 

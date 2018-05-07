@@ -7,23 +7,28 @@
 import java.util.LinkedList;
 
 public class Floor {
-	LinkedList<Person> queue; //elevator waiting line
+	LinkedList<Person> upQueue; //waiting line for people going up
+	LinkedList<Person> downQueue; //waiting line for people going down
 	int floor; //which floor is this
 	boolean up; //up button (true if pressed)
 	boolean down; //down button (true if pressed)
 	
 	public Floor(int floor){
 		this.floor = floor;
-		queue = new LinkedList<Person>();
+		upQueue = new LinkedList<Person>();
+		downQueue = new LinkedList<Person>();
 	}
 	
 	public void addPerson(Person p){
-		queue.add(p);
 		int direction = p.desiredFloor - floor;
-		if (direction > 0)
+		if (direction > 0){
+			upQueue.add(p);
 			up = true;
-		else
+		}
+		else{
+			downQueue.add(p);
 			down = true;
+		}
 		//signal ed to tell an elevator to stop at this floor
 		EventDriver.ed.signal(floor);
 	}
