@@ -35,6 +35,6 @@ public class Elevator {
 	//method to board a person onto the elevator
 	public void board(Person p){
 		occupants.add(p);
-		stopFloors[p.desiredFloor] = true;
+		//stopFloors[p.desiredFloor] = true;
 	}
 }

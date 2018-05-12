@@ -19,6 +19,7 @@ public class ElevatorMoveEvent extends Event {
 	@Override
 	public void execute() {
 		e.move();
+	    EventDriver.ed.moveElevator(e);
 	}
 
 }

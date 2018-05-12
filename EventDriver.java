@@ -9,6 +9,7 @@ import java.util.ListIterator;
 public class EventDriver {
 	static EventDriver ed; //a static reference to the latest instance of EventDriver,
 	//to help other classes have easy access to it
+	static int maxArrivals = 10;
 	Floor[] floors; //array of all floors in building
 	int numFloors; //total number of floors
 	Elevator[] elevators; //array of all elevators in building
@@ -18,11 +19,12 @@ public class EventDriver {
 	SortedLinkedList<Event> events;
 	Statistics stat;
 	
+
+	
 	//Constants used in the simulation
 	final double elevatorBoardTime = 0.1;
 	final double elevatorExitTime = 0.1;
 	final double customerArrivalLambda = 5;
-	
 	final double elevatorMoveTime = 0.2;
 	
 	
@@ -44,7 +46,7 @@ public class EventDriver {
 	}
 	
 	//simulate up to <maxArrivals> number of arriving customers
-	public void start(int maxArrivals){
+	public void start(){
 		//keep loop going as long as either:
 		//a) we haven't reached maxArrivals
 		//b) there's still events waiting to be processed
@@ -128,7 +130,6 @@ public class EventDriver {
 		//how to move the elevators efficiently
 		
 		for (int i = 0; i < elevators.length; i++) {
-			//TODO: Work on elevator logic 
 			Elevator e = elevators[i];
 			//if the current floor the elevator is on has requests,
 			//i.e. people wanted to get off or on, create elevator Exit and Board events
@@ -258,19 +259,13 @@ public class EventDriver {
 	}
 	
 	void assignElevator(int floor, int direction){
-		/**chooses which elevator to send by checking off the floor array 
-		/and changing elevator direction. Base decision on current elevator paths
-		/and the floors they are to stop in 
-		/
-		/write in eventDriver class**/
-		
 		//basically check which elevator is going in the same direction (or idle) as the request,
 		//and is closest to the floor,
 		//and once you have that elevator e,
 		//simply call assignElevator(floor, e)
 		//and that method will handle the rest.
 		
-		//TODO: Send the closest elevator going in the same direction.
+		//Send the closest elevator going in the same direction.
 		//If no such elevator exists, send the closest idle elevator
 		//If two of any type exist, send the lowest ID elevator first.
 		
@@ -327,7 +322,6 @@ public class EventDriver {
 				index = i;
 			}
 		}
-		
 		assignElevator(floor, elevators[index]);
 	}
 
@@ -348,16 +342,13 @@ public class EventDriver {
 	void moveElevator(Elevator e){
 		//create a new ElevatorMoveEvent
 		//passing in the required arguments
-		
-		//TODO: Need to pass appropriate parameters to constructor
-		events.sortedAdd(new ElevatorMoveEvent());
-		
+		events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime, e));
 	}
 	
 	public static void main(String[] args){
 		//create EventDriver with 10 floors and 1 elevator
 		EventDriver ed = new EventDriver(10, 1);
 		//start simulation, go up to 1e3 arrivals
-		ed.start(10);
+		ed.start();
 	}
 }

@@ -24,6 +24,7 @@ public class ElevatorBoardEvent extends Event {
 		//this person is first one in line at floor f
 		f.queue.removeFirst(); //leave floor f
 		e.board(p); //enter elevator e
+		EventDriver.ed.assignElevator(e.currentFloor, e);
 	}
 
 }

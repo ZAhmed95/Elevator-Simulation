@@ -20,5 +20,9 @@ public class ArrivalEvent extends Event{
 		//this person will arrive at the designated floor
 		person.arrivalTime = triggerTime;
 		EventDriver.ed.floors[floor].addPerson(person);
+		
+		if(Statistics.personCount < EventDriver.maxArrivals){
+		    EventDriver.ed.nextPerson();
+		}
 	}
 }
