@@ -22,6 +22,7 @@ public class EventDriver {
 	final double elevatorBoardTime = 0.1;
 	final double elevatorExitTime = 0.1;
 	final double customerArrivalLambda = 5;
+	
 	final double elevatorMoveTime = 0.2;
 	
 	
@@ -126,116 +127,119 @@ public class EventDriver {
 		//in the finished project, the controller will smartly choose
 		//how to move the elevators efficiently
 		
-		//TODO: put a for loop going through each elevator in finished project
-		//for now, there's just one elevator
-		Elevator e = elevators[0];
-		//if the current floor the elevator is on has requests,
-		//i.e. people wanted to get off or on, create elevator Exit and Board events
-		//as necessary
-		if (e.stopFloors[e.currentFloor]){
-			//create an exit event for every person in the elevator who wants to get off
-			//at this floor
-			ListIterator<Person> itr = e.occupants.listIterator();
-			Person p;
-			double wait = 0;
-			while(itr.hasNext()){
-				p = itr.next();
-				if (p.desiredFloor == e.currentFloor){
-					events.add(new ElevatorExitEvent(time+wait, elevatorExitTime, p, e));
-					wait += elevatorExitTime; //people have to go out one by one
+		for (int i = 0; i < elevators.length; i++) {
+			//TODO: Work on elevator logic 
+			Elevator e = elevators[i];
+			//if the current floor the elevator is on has requests,
+			//i.e. people wanted to get off or on, create elevator Exit and Board events
+			//as necessary
+			if (e.stopFloors[e.currentFloor]){
+				//create an exit event for every person in the elevator who wants to get off
+				//at this floor
+				ListIterator<Person> itr = e.occupants.listIterator();
+				Person p;
+				double wait = 0;
+				while(itr.hasNext()){
+					p = itr.next();
+					if (p.desiredFloor == e.currentFloor){
+						events.add(new ElevatorExitEvent(time+wait, elevatorExitTime, p, e));
+						wait += elevatorExitTime; //people have to go out one by one
+					}
 				}
-			}
-			//if the elevator is idle (only happens in lobby), set direction to 1
-			if (e.direction == 0)
-				e.direction = 1;
-			//all exit events have been scheduled, now see who wants to board
-			itr = floors[e.currentFloor].queue.listIterator();
-			wait = 0;
-			while(itr.hasNext()){
-				p = itr.next();
-				//if the direction the elevator is heading matches the direction
-				//this person wants to go:
-				if ((p.desiredFloor - e.currentFloor)*e.direction > 0){
-					//create a boarding event
-					events.add(new ElevatorBoardEvent(time+wait, elevatorBoardTime, p, e));
-					wait += elevatorBoardTime; //people must enter one by one
-				}
-			}
-			//elevator boarding and exiting events scheduled, now change some flags:
-			e.stopFloors[e.currentFloor] = false; //elevator finished it's business at this floor
-			if (e.direction == 1)
-				floors[e.currentFloor].up = false;
-			else if (e.direction == -1)
-				floors[e.currentFloor].down = false;
-			//now create an elevator move event to get it moving
-			//events.sortedAdd(new ElevatorMoveEvent(time+wait, elevatorBoardTime, e));
-			//TODO: above statement causes a bug, figure out why
-			return;
-		}
-		//if the elevator is going up and it has more stops above, keep going
-		//same for down
-		int direction = e.direction;
-		boolean requested = false;
-		//in our design, an elevator is only ever idle (direction = 0) in the lobby
-		if (direction == 0){
-			//search through floors to check if there are any requests
-			for(int i = 0; i < floors.length; i++){
-				if (e.stopFloors[i]){
+				
+				//TODO: Take a look at this. Might not belong in this spot.
+				//if the elevator is idle (only happens in lobby), set direction to 1
+				if (e.direction == 0)
 					e.direction = 1;
-					requested = true;
-					break;
+				//all exit events have been scheduled, now see who wants to board
+				itr = floors[e.currentFloor].queue.listIterator();
+				wait = 0;
+				while(itr.hasNext()){
+					p = itr.next();
+					//if the direction the elevator is heading matches the direction
+					//this person wants to go:
+					if ((p.desiredFloor - e.currentFloor)*e.direction > 0){
+						//create a boarding event
+						events.add(new ElevatorBoardEvent(time+wait, elevatorBoardTime, p, e));
+						wait += elevatorBoardTime; //people must enter one by one
+					}
 				}
-			}
-			if (requested){
-				//add elevator move event to events queue
-				events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
-				return; 
-				//TODO: replace this with 'break' in finished project
-			}
-		}
-		//else, if the elevator is already moving:
-		else {
-			//check if there are more requested floors in the same direction
-			for (int i = e.currentFloor+direction; i >= 0 && i < floors.length; i += direction){
-				if (e.stopFloors[i]){
-					requested = true; //continue in same direction
-					break;
-				}
-			}
-			if (requested){
-				//add elevator move event to events queue
-				events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
-				return; 
-				//TODO: replace this with 'break' in finished project
-			}
-			//if no requests found in same direction, check the opposite direction
-			for (int i = e.currentFloor-direction; i >= 0 && i < floors.length; i -= direction){
-				if (e.stopFloors[i]){
-					//tell elevator to switch directions
-					e.direction *= -1;
-					requested = true;
-					break;
-				}
-			}
-			if (requested){
-				//add elevator move event to events queue
-				events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
+				//elevator boarding and exiting events scheduled, now change some flags:
+				e.stopFloors[e.currentFloor] = false; //elevator finished it's business at this floor
+				if (e.direction == 1)
+					floors[e.currentFloor].up = false;
+				else if (e.direction == -1)
+					floors[e.currentFloor].down = false;
+				//now create an elevator move event to get it moving
+				//events.sortedAdd(new ElevatorMoveEvent(time+wait, elevatorBoardTime, e));
+				//TODO: above statement causes a bug, figure out why
 				return;
-				//TODO: replace this with 'break' in finished project
 			}
-		}
-		
-		//if no requested floors were found at all, send it to be idle in the lobby
-		//(if it isn't already at the lobby)
-		if (e.currentFloor != 0){
-			e.direction = -1;
-			e.stopAt(0);
-			//add elevator move event to events queue
-			events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
-		}
-		//if elevator is already at lobby, simply set it idle
-		else{
-			e.direction = 0;
+			//if the elevator is going up and it has more stops above, keep going
+			//same for down
+			int direction = e.direction;
+			boolean requested = false;
+			//in our design, an elevator is only ever idle (direction = 0) in the lobby
+			if (direction == 0){
+				//search through floors to check if there are any requests
+				for(int j = 0; j < floors.length; j++){
+					if (e.stopFloors[j]){
+						e.direction = 1;
+						requested = true;
+						break;
+					}
+				}
+				if (requested){
+					//add elevator move event to events queue
+					events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
+					return; 
+					//TODO: replace this with 'break' in finished project
+				}
+			}
+			//else, if the elevator is already moving:
+			else {
+				//check if there are more requested floors in the same direction
+				for (int j = e.currentFloor+direction; j >= 0 && j < floors.length; j += direction){
+					if (e.stopFloors[j]){
+						requested = true; //continue in same direction
+						break;
+					}
+				}
+				if (requested){
+					//add elevator move event to events queue
+					events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
+					return; 
+					//TODO: replace this with 'break' in finished project
+				}
+				//if no requests found in same direction, check the opposite direction
+				for (int j = e.currentFloor-direction; j >= 0 && j < floors.length; j -= direction){
+					if (e.stopFloors[j]){
+						//tell elevator to switch directions
+						e.direction *= -1;
+						requested = true;
+						break;
+					}
+				}
+				if (requested){
+					//add elevator move event to events queue
+					events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
+					return;
+					//TODO: replace this with 'break' in finished project
+				}
+			}
+			
+			//if no requested floors were found at all, send it to be idle in the lobby
+			//(if it isn't already at the lobby)
+			if (e.currentFloor != 0){
+				e.direction = -1;
+				e.stopAt(0);
+				//add elevator move event to events queue
+				events.sortedAdd(new ElevatorMoveEvent(time, elevatorMoveTime,e));
+			}
+			//if elevator is already at lobby, simply set it idle
+			else{
+				e.direction = 0;
+			}
 		}
 	}
 	
@@ -251,6 +255,103 @@ public class EventDriver {
 		//the closest one going in the same direction
 		Elevator e = elevators[0];
 		e.stopAt(floor);
+	}
+	
+	void assignElevator(int floor, int direction){
+		/**chooses which elevator to send by checking off the floor array 
+		/and changing elevator direction. Base decision on current elevator paths
+		/and the floors they are to stop in 
+		/
+		/write in eventDriver class**/
+		
+		//basically check which elevator is going in the same direction (or idle) as the request,
+		//and is closest to the floor,
+		//and once you have that elevator e,
+		//simply call assignElevator(floor, e)
+		//and that method will handle the rest.
+		
+		//TODO: Send the closest elevator going in the same direction.
+		//If no such elevator exists, send the closest idle elevator
+		//If two of any type exist, send the lowest ID elevator first.
+		
+		int numFloorsToGo = 0;
+		int index = 0;
+		
+		//select the first eligible elevator as the basis of comparison and save its index
+		for (int i = 0; i < elevators.length; i++) {
+			
+			//check if there is an elevator going up that has not passed the desired floor
+			if (direction > 0 && elevators[i].direction == direction && elevators[i].currentFloor < floor) {
+				index = i;
+				numFloorsToGo = Math.abs(floor-elevators[i].currentFloor);
+				break;
+			}
+			
+			//check if there is an elevator going down that has not passed the desired floor
+			if (direction < 0 && elevators[i].direction == direction && elevators[i].currentFloor > floor) {
+				index = i;
+				numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
+				break;
+			}
+			
+			//else find the first idle elevator
+			if (elevators[i].direction == 0) {
+				index = i;
+				numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
+				break;
+			}
+		}
+		
+		//now compare our elevator choice to all remaining and move the index if there is a
+		//better elevator to send
+		for (int i = index+1; i < elevators.length; i++){
+			
+			//if the elevator selected at index is going up 
+			if (elevators[index].direction > 0 && elevators[i].direction > 0 && 
+					elevators[i].currentFloor < floor && (floor-elevators[i].currentFloor)<numFloorsToGo){
+				numFloorsToGo = floor-elevators[i].currentFloor;
+				index = i;
+			}
+			
+			//if the elevator selected at index is going down
+			else if (elevators[index].direction < 0 && elevators[i].direction < 0 && 
+					elevators[i].currentFloor > floor && (elevators[i].currentFloor-floor)<numFloorsToGo){
+				numFloorsToGo = elevators[i].currentFloor-floor;
+				index = i;
+			}
+			
+			//if elevator at index is idle
+			else if (elevators[index].direction == 0 && elevators[i].direction == 0 &&
+					(Math.abs(floor-elevators[i].currentFloor) < numFloorsToGo)) {
+				numFloorsToGo = Math.abs(elevators[i].currentFloor - floor);
+				index = i;
+			}
+		}
+		
+		assignElevator(floor, elevators[index]);
+	}
+
+	void assignElevator(int floor, Elevator e){
+		//this is an overloaded version of assign elevator
+		//unlike the other version, which figures out which elevator to send
+		//to a particular floor,
+		//this one tells the given elevator to go to the given floor.
+		//simply do e.stopAt(floor);
+		//if the elevator is currently idle, you will need to create a new ElevatorMoveEvent
+		//for it to start moving,
+		//by calling moveElevator(e)
+		
+		if(e.direction != 0) e.stopAt(floor);
+		else moveElevator(e);
+	}
+	
+	void moveElevator(Elevator e){
+		//create a new ElevatorMoveEvent
+		//passing in the required arguments
+		
+		//TODO: Need to pass appropriate parameters to constructor
+		events.sortedAdd(new ElevatorMoveEvent());
+		
 	}
 	
 	public static void main(String[] args){
