@@ -30,6 +30,6 @@ public class Floor {
 			down = true;
 		}
 		//signal ed to tell an elevator to stop at this floor
-		EventDriver.ed.signal(floor);
+		EventDriver.ed.assignElevator(floor, direction);
 	}
 }

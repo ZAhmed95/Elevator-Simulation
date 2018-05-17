@@ -37,4 +37,23 @@ public class Elevator {
 		occupants.add(p);
 		stopFloors[p.desiredFloor] = true;
 	}
+	
+	//method to check if this elevator still has more stops to get to
+	public boolean hasMoreStops(){
+		if (direction == 0)
+			return false;
+		
+		boolean moreStops = false;
+		for (int i = currentFloor + direction; 
+				i >= 0 && i < EventDriver.ed.numFloors; 
+				i += direction
+			){
+			if (stopFloors[i]){
+				//found a remaining stop
+				moreStops = true;
+				break;
+			}
+		}
+		return moreStops;
+	}
 }
