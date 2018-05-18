@@ -140,25 +140,37 @@ public class EventDriver {
 		int numFloorsToGo = 0;
 		int index = 0;
 		
+		
+        //first check if there are any idle elevators already on the floor requested as that will be the
+        //best elevator to send for minimum wait time. If it exists, send that
+		for (int i = 0; i < elevators.length; i++){
+            if (elevators[i].currentFloor == floor && elevators[i].direction == 0){
+                assignElevator(floor, elevators[i]);
+                return;
+            }
+		}
+		
 		//select the first eligible elevator as the basis of comparison and save its index
+		//the conditions in which the elevator has been selected will be used later to determine if there is a
+		//better elevator to send
 		for (int i = 0; i < elevators.length; i++) {
 			
 			//check if there is an elevator going up that has not passed the desired floor
-			if (direction > 0 && elevators[i].direction == direction && elevators[i].currentFloor < floor) {
+		    if (direction > 0 && elevators[i].direction == direction && elevators[i].currentFloor < floor) {
 				index = i;
 				numFloorsToGo = Math.abs(floor-elevators[i].currentFloor);
 				break;
 			}
 			
 			//check if there is an elevator going down that has not passed the desired floor
-			if (direction < 0 && elevators[i].direction == direction && elevators[i].currentFloor > floor) {
+			else if (direction < 0 && elevators[i].direction == direction && elevators[i].currentFloor > floor) {
 				index = i;
 				numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
 				break;
 			}
 			
 			//else find the first idle elevator
-			if (elevators[i].direction == 0) {
+			else if (elevators[i].direction == 0) {
 				index = i;
 				numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
 				break;
