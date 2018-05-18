@@ -20,6 +20,7 @@ public class Elevator {
 		capacity = cap;
 		occupants = new LinkedList<Person>();
 		stopFloors = new boolean[EventDriver.ed.numFloors];
+		this.direction = 0;
 	}
 	
 	//tell this elevator to stop at a certain floor
