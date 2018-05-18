@@ -146,7 +146,6 @@ public class EventDriver {
             }
 		}
 		
-		
         int numFloorsToGo = 0;
         int index = 0;
 		
@@ -155,18 +154,34 @@ public class EventDriver {
 		//at the floor
 		for (int i = 0; i < elevators.length; i++) {
 			
-			//check if there is an elevator going up that has not passed the desired floor
+			//if up, check if there is an elevator going up that has not passed the desired floor
 		    if (direction > 0 && elevators[i].direction == direction && elevators[i].currentFloor <= floor) {
 				index = i;
 				numFloorsToGo = floor - elevators[i].currentFloor;
-				break;
+				for (int j = index+1; j < elevators.length; j++){
+		            if (elevators[index].direction > 0 && elevators[j].direction > 0 && 
+		                    elevators[j].currentFloor <= floor && (floor-elevators[j].currentFloor)<numFloorsToGo){
+		                numFloorsToGo = floor-elevators[j].currentFloor;
+		                index = j;
+		            }
+				}
+				assignElevator(floor, elevators[index]);
+				return;
 			}
 			
-			//check if there is an elevator going down that has not passed the desired floor
+			//if down, check if there is an elevator going down that has not passed the desired floor
 			else if (direction < 0 && elevators[i].direction == direction && elevators[i].currentFloor >= floor) {
 				index = i;
 				numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
-				break;
+				for (int j = index+1; j < elevators.length; j++){
+				    if (elevators[index].direction < 0 && elevators[j].direction < 0 && 
+		                    elevators[j].currentFloor >= floor && (elevators[j].currentFloor-floor)<numFloorsToGo){
+		                numFloorsToGo = elevators[j].currentFloor-floor;
+		                index = j;
+				    }
+				}
+				assignElevator(floor, elevators[index]);
+				return;
 			}
 		}
 		
@@ -175,36 +190,17 @@ public class EventDriver {
 		    if (elevators[i].direction == 0) {
                 index = i;
                 numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
-                break;
+                for (int j = index+1; j < elevators.length; j++){
+                    if (elevators[index].direction == 0 && elevators[j].direction == 0 &&
+                            (Math.abs(floor-elevators[j].currentFloor) < numFloorsToGo)) {
+                        numFloorsToGo = Math.abs(elevators[j].currentFloor - floor);
+                        index = j;
+                    }
+                }
+                assignElevator(floor, elevators[index]);
+                return;
             }
 		}
-		
-		//now compare our elevator choice to all remaining and move the index if there is a
-		//better elevator to send
-		for (int i = index+1; i < elevators.length; i++){
-			
-			//if the elevator selected at index is going up 
-			if (elevators[index].direction > 0 && elevators[i].direction > 0 && 
-					elevators[i].currentFloor <= floor && (floor-elevators[i].currentFloor)<numFloorsToGo){
-				numFloorsToGo = floor-elevators[i].currentFloor;
-				index = i;
-			}
-			
-			//if the elevator selected at index is going down
-			else if (elevators[index].direction < 0 && elevators[i].direction < 0 && 
-					elevators[i].currentFloor >= floor && (elevators[i].currentFloor-floor)<numFloorsToGo){
-				numFloorsToGo = elevators[i].currentFloor-floor;
-				index = i;
-			}
-			
-			//if elevator at index is idle
-			else if (elevators[index].direction == 0 && elevators[i].direction == 0 &&
-					(Math.abs(floor-elevators[i].currentFloor) < numFloorsToGo)) {
-				numFloorsToGo = Math.abs(elevators[i].currentFloor - floor);
-				index = i;
-			}
-		}
-		assignElevator(floor, elevators[index]);
 	}
 
 	void assignElevator(int floor, Elevator e){
@@ -259,6 +255,9 @@ public class EventDriver {
 		LinkedList<Person> queue = (e.direction > 0) ? 
 					floors[floor].upQueue : 
 					floors[floor].downQueue;
+					
+		//System.out.println("# of people in upQueue: " + floors[floor].upQueue.size());
+		//System.out.println("# of people in downQueue: " + floors[floor].downQueue.size());
 		//board all people in queue
 		for (Person p : queue){
 			events.sortedAdd(new ElevatorBoardEvent(tempTime, elevatorBoardTime, p, e, e.direction));
