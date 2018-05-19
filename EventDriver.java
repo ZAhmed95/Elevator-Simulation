@@ -141,6 +141,7 @@ public class EventDriver {
         //best elevator to send for minimum wait time. If it exists, send that
 		for (int i = 0; i < elevators.length; i++){
             if (elevators[i].currentFloor == floor && elevators[i].direction == 0){
+            	//elevators[i].direction = direction;
                 assignElevator(floor, elevators[i]);
                 return;
             }
@@ -197,6 +198,7 @@ public class EventDriver {
                         index = j;
                     }
                 }
+                //elevators[index].direction = direction;
                 assignElevator(floor, elevators[index]);
                 return;
             }
@@ -212,6 +214,11 @@ public class EventDriver {
 		//if the elevator is currently idle, you will need to create a new ElevatorMoveEvent
 		//for it to start moving,
 		//by calling moveElevator(e)
+		
+		if (e.direction == 0 && e.currentFloor == 0) {
+			e.stopAt(floor);
+			e.direction = 1;
+		}
 		
 		//if this elevator is already at this floor, call exitAndBoard
 		if (floor == e.currentFloor){
