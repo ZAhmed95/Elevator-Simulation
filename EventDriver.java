@@ -108,6 +108,7 @@ public class EventDriver {
 		Event next = events.removeFirst();
 		//calculate event start time and end time
 		double startTime = Math.round(next.triggerTime*100)/100.0;
+		time = startTime;
 		double endTime = Math.round((startTime + next.duration)*100)/100.0;
 		//log event message
 		System.out.println(
@@ -122,8 +123,8 @@ public class EventDriver {
 		//for one event to happen while another is progressing
 		//e.g. a new person arrives while an elevator is moving
 		//so we need to log the correct times
-		if (time < endTime)
-			time = endTime;
+		//if (time < endTime)
+			//time = endTime;
 	}
 	
 	void assignElevator(int floor, int direction){
@@ -192,8 +193,7 @@ public class EventDriver {
                 index = i;
                 numFloorsToGo = Math.abs(floor - elevators[i].currentFloor);
                 for (int j = index+1; j < elevators.length; j++){
-                    if (elevators[index].direction == 0 && elevators[j].direction == 0 &&
-                            (Math.abs(floor-elevators[j].currentFloor) < numFloorsToGo)) {
+                    if (elevators[j].direction == 0 && (Math.abs(floor-elevators[j].currentFloor) < numFloorsToGo)) {
                         numFloorsToGo = Math.abs(elevators[j].currentFloor - floor);
                         index = j;
                     }
@@ -215,10 +215,12 @@ public class EventDriver {
 		//for it to start moving,
 		//by calling moveElevator(e)
 		
-		if (e.direction == 0 && e.currentFloor == 0) {
+		/**if (e.direction == 0 && e.currentFloor == 0) {
 			e.stopAt(floor);
 			e.direction = 1;
-		}
+			//moveElevator(e, time);
+			exitAndBoard(e, floor);
+		}*/
 		
 		//if this elevator is already at this floor, call exitAndBoard
 		if (floor == e.currentFloor){
@@ -259,9 +261,17 @@ public class EventDriver {
 		}
 		//now handle all who want to board
 		//choose either the floor's upQueue or downQueue based on e's direction
-		LinkedList<Person> queue = (e.direction > 0) ? 
+		/**LinkedList<Person> queue = (e.direction > 0) ? 
 					floors[floor].upQueue : 
-					floors[floor].downQueue;
+					floors[floor].downQueue;*/
+		
+		LinkedList<Person> queue;
+					
+		if (e.direction > 0 || e.currentFloor == 0) {
+		    queue = floors[floor].upQueue;
+		    e.direction = 1;
+		}
+		else queue = floors[floor].downQueue;
 					
 		//System.out.println("# of people in upQueue: " + floors[floor].upQueue.size());
 		//System.out.println("# of people in downQueue: " + floors[floor].downQueue.size());
@@ -282,6 +292,8 @@ public class EventDriver {
 			//keep moving in current direction
 			moveElevator(e, tempTime);
 		}
+		
+		//TODO: this could be problematic
 		else{
 			//otherwise, elevator has no more assigned stops, become idle
 			e.direction = 0;

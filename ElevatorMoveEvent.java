@@ -20,6 +20,7 @@ public class ElevatorMoveEvent extends Event {
 	public void execute() {
 		//System.out.println(e.direction);
 		//System.out.println(e.hasMoreStops());
+	    //EventDriver.ed.time = triggerTime;
 		//move to next floor
 		e.move();
 		//after arriving at the floor, check if this is one of this elevator's
