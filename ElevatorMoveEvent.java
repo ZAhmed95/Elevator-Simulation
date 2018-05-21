@@ -18,9 +18,18 @@ public class ElevatorMoveEvent extends Event {
 
 	@Override
 	public void execute() {
-		//System.out.println(e.direction);
-		//System.out.println(e.hasMoreStops());
-	    //EventDriver.ed.time = triggerTime;
+		//check if elevator can't go any further
+		if (	(e.currentFloor == 0 && e.direction == -1) || //can't go further down
+				(e.currentFloor == EventDriver.ed.numFloors - 1 && e.direction == 1)){ //can't go up
+			//set direction to be opposite
+			e.direction *= -1;
+			//if it doesn't have any stops in the opposite direction, set it idle
+			if (!e.hasMoreStops()){
+				e.direction = 0;
+				return;
+			}
+			//otherwise, continue with elevator movement
+		}
 		//move to next floor
 		e.move();
 		//after arriving at the floor, check if this is one of this elevator's

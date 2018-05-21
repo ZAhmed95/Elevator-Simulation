@@ -24,13 +24,12 @@ public class Floor {
 		if (direction > 0){
 			upQueue.add(p);
 			up = true;
-		    //signal ed to tell an elevator to stop at this floor
-			EventDriver.ed.assignElevator(floor, 1);
 		}
 		else{
 			downQueue.add(p);
 			down = true;
-			EventDriver.ed.assignElevator(floor, -1);
 		}
+		//signal ed to tell an elevator to stop at this floor
+		EventDriver.ed.assignElevator(floor, direction);
 	}
 }
