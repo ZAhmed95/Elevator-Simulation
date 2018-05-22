@@ -22,7 +22,7 @@ public class ElevatorExitEvent extends Event {
 		//calculate how much time this person waited until now
 		double waitTime = triggerTime+duration - p.arrivalTime;
 		//add it to the stats
-		EventDriver.ed.stat.totalWaitTime += waitTime;
+		EventDriver.ed.stat.updateStats(p.arrivalFloor, p.desiredFloor, waitTime);
 	}
 
 }

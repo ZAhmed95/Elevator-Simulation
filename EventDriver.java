@@ -10,16 +10,15 @@ import java.util.ListIterator;
 public class EventDriver {
 	static EventDriver ed; //a static reference to the latest instance of EventDriver,
 	//to help other classes have easy access to it
-	static int maxArrivals = 100;
+	static int maxArrivals = 1000000;
 	Floor[] floors; //array of all floors in building
 	int numFloors; //total number of floors
 	Elevator[] elevators; //array of all elevators in building
 	int numElevators; //total number of elevators
 	double time; //current simulation time, in seconds
-	//LinkedList<Person> arrivals; //future arriving people (? might remove this)
 	SortedLinkedList<Event> events;
 	Statistics stat;
-	
+	boolean debug = false; //if true, program will print debugging output to console
 
 	
 	//Constants used in the simulation
@@ -54,8 +53,10 @@ public class EventDriver {
 		while (!events.isEmpty()){
 			nextEvent();
 		}
-		//log average wait time
-		System.out.println("Average person's wait time: " + stat.averageWaitTime());
+		//finalize statistics
+		stat.finalizeStats();
+		//output statistics
+		stat.outputStats();
 	}
 	
 	void nextPerson(){
@@ -67,7 +68,7 @@ public class EventDriver {
 			targetFloor = stat.randInt(0, numFloors);
 		}
 		//create a new person
-		Person p = new Person(targetFloor);
+		Person p = new Person(startFloor, targetFloor);
 		//create a new ArrivalEvent
 		Event e = new ArrivalEvent(nextArrivalTime, 0, p, startFloor);
 		//add event to the list
@@ -80,7 +81,7 @@ public class EventDriver {
 		if (stat.randInt(0, 2) == 0){
 			return 0; //50% chance of floor 0
 		}
-		//50% chance of a uniform choice between floor 1 to floor (numFloors-1)
+		//50% chance of an equilikely choice between floor 1 to floor (numFloors-1)
 		return stat.randInt(1, numFloors);
 	}
 	
@@ -94,12 +95,15 @@ public class EventDriver {
 		//calculate event start time and end time
 		double startTime = Math.round(next.triggerTime*100)/100.0;
 		double endTime = Math.round((startTime + next.duration)*100)/100.0;
-		//log event message
-		System.out.println(
-				"(time = " + startTime + ") " //event start time
-				+ next.getMessage() //event message
-				+ " (end = " + endTime + ")" //event end time
-			);
+		if (debug){
+			//log event message
+			System.out.println(
+					"(time = " + startTime + ") " //event start time
+					+ next.getMessage() //event message
+					+ " (end = " + endTime + ")" //event end time
+				);
+		}
+		
 		//update time if time < endTime
 		//this check is necessary for bookkeeping purposes, since it's possible
 		//for one event to happen while another is progressing
