@@ -20,7 +20,7 @@ public class Floor {
 	}
 	
 	public void addPerson(Person p){
-		int direction = p.desiredFloor - floor;
+	    int direction = (p.desiredFloor - floor) > 0 ? 1 : -1;
 		if (direction > 0){
 			upQueue.add(p);
 			up = true;

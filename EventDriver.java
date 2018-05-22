@@ -16,7 +16,7 @@ public class EventDriver {
 	Elevator[] elevators; //array of all elevators in building
 	int numElevators; //total number of elevators
 	double time; //current simulation time, in seconds
-	SortedLinkedList<Event> events;
+	SortedLinkedList<Event> events; //linked list of all future events
 	Statistics stat;
 	boolean debug = false; //if true, program will print debugging output to console
 
@@ -50,6 +50,7 @@ public class EventDriver {
 		//generate first person
 		nextPerson();
 		//simulation will keep running as long as events keep being generated
+		//events linked list is sorted based on its triggerTime
 		while (!events.isEmpty()){
 			nextEvent();
 		}
@@ -116,11 +117,10 @@ public class EventDriver {
 	}
 	
 	void assignElevator(int floor, int direction){
-		//basically check which elevator is going in the same direction (or idle) as the request,
-		//and is closest to the floor,
-		//and once you have that elevator e,
-		//simply call assignElevator(floor, e)
-		//and that method will handle the rest.
+	    //Master controller for the elevators. Decides with elevator is the best
+	    //to send based on the desired floor and the direction the person will be going.
+	    
+	    //Note: Direction can be up (1), idle (0), or down (-1).
 		
 		//Send the closest elevator going in the same direction.
 		//If no such elevator exists, send the closest idle elevator
@@ -191,10 +191,6 @@ public class EventDriver {
 		//unlike the other version, which figures out which elevator to send
 		//to a particular floor,
 		//this one tells the given elevator to go to the given floor.
-		//simply do e.stopAt(floor);
-		//if the elevator is currently idle, you will need to create a new ElevatorMoveEvent
-		//for it to start moving,
-		//by calling moveElevator(e)
 		
 		//if this elevator is idle AND is already at this floor, call exitAndBoard
 		if (e.direction == 0 && floor == e.currentFloor){
@@ -295,7 +291,7 @@ public class EventDriver {
 	}
 	
 	public static void main(String[] args){
-		//create EventDriver with 10 floors and 1 elevator
+		//create EventDriver with 10 floors and 10 elevator
 		EventDriver ed = new EventDriver(10, 10);
 		//start simulation, go up to 1e3 arrivals
 		ed.start();
