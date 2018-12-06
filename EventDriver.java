@@ -5,12 +5,11 @@
  * 			Jun Young Cheong
  */
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 public class EventDriver {
 	static EventDriver ed; //a static reference to the latest instance of EventDriver,
 	//to help other classes have easy access to it
-	static int maxArrivals = 1000000;
+	static int maxArrivals = 100; // change this to determine how long simulation will run for
 	Floor[] floors; //array of all floors in building
 	int numFloors; //total number of floors
 	Elevator[] elevators; //array of all elevators in building
@@ -18,7 +17,7 @@ public class EventDriver {
 	double time; //current simulation time, in seconds
 	SortedLinkedList<Event> events; //linked list of all future events
 	Statistics stat;
-	boolean debug = false; //if true, program will print debugging output to console
+	boolean debug = true; //if true, program will print debugging output to console
 
 	
 	//Constants used in the simulation
